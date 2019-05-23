@@ -49,6 +49,7 @@ namespace GameGlobal
         Internal_Trade_SellFood,
         Internal_Expand,
         Military_Campaign,
+        Military_CampaignAuto,
         Military_Transfer, //运兵
         Military_Troopership,
         Military_Training,
@@ -94,7 +95,6 @@ namespace GameGlobal
         Tactics_Instigate,
         Tactics_Gossip,
         Tactics_Search,
-        Tactics_ClearField,
         Tactics_JailBreak,
         Tactics_Assassinate,
         Diplomacy,
@@ -127,6 +127,7 @@ namespace GameGlobal
         Monarch_hougongTop_nafei,
         Monarch_hougongTop_hougong,
         Monarch_hougongTop_moveFeizi,
+        Monarch_hougongTop_releaseFeizi,
         Monarch_Refuse,
         Monarch_Treasure_Confiscate,
         Monarch_Treasure_Award,

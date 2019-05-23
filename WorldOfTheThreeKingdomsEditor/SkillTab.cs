@@ -11,16 +11,16 @@ namespace WorldOfTheThreeKingdomsEditor
 {
     class SkillTab : BaseTab<Skill>
     {
-        protected override GameObjectList GetDataList(GameScenario scen)
+        protected override IItemList GetDataList(GameScenario scen)
         {
-            return scen.GameCommonData.AllSkills.GetSkillList();
+            return new GameObjectDictionaryItemList(scen.GameCommonData.AllSkills.Skills);
         }
 
         protected override Dictionary<string, string> GetDefaultValues()
         {
             return new Dictionary<string, string>()
             {
-
+                {"GenerationChance","0 0 0 0 0 0 0 0 0 0" }
             };
         }
 
@@ -36,27 +36,38 @@ namespace WorldOfTheThreeKingdomsEditor
                 "Name",
                 "Combat",
                 "InfluencesString",
-                "ConditionsString",
+                "ConditionTableString",
                 "Prerequisite",
                 "Description",
                 "GenerateConditionsString",
-                "General",
-                "Brave",
-                "Advisor",
-                "Politician",
-                "IntelGeneral",
-                "Emperor",
-                "AllRounder",
-                "Normal",
-                "Normal2",
-                "Cheap",
-                "Ability"
+                "GenerationChance",
+                "RelatedAbility"
             };
         }
 
-        public SkillTab(GameScenario scen, DataGrid dg)
+        protected override Dictionary<String, String> GetHelpText()
         {
-            init(scen, dg);
+            return new Dictionary<string, string>()
+            {
+                { "DisplayRow", "显示行" },
+                { "DisplayCol", "显示列" },
+                { "Kind", "类别" },
+                { "Level", "等级" },
+                { "Name", "名称" },
+                { "Combat", "战斗" },
+                { "InfluencesString", "影响列表" },
+                { "ConditionTableString", "条件列表" },
+                { "Prerequisite", "条件描述" },
+                { "Description", "描述" },
+                { "GenerateConditionsString", "生成武将条件" },
+                { "GenerationChance","不同生成武将类型获得机率" },
+                { "RelatedAbility", "此技能的相关能力、0-4为武统智政魅" },
+            };
+        }
+
+        public SkillTab(GameScenario scen, DataGrid dg, TextBlock helpTextBlock)
+        {
+            init(scen, dg, helpTextBlock);
         }
     }
 }

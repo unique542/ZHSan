@@ -90,10 +90,6 @@ namespace GameObjects
 
         public static Captive Create(Person person, Faction capturingFaction)
         {
-            if (person.BelongedFaction == null)
-            {
-                return null;
-            }
             if (person.BelongedFaction == capturingFaction)
             {
                 return null;
@@ -280,6 +276,10 @@ namespace GameObjects
             {
                 Session.Current.Scenario.ChangeDiplomaticRelation(this.BelongedFaction.ID, this.CaptiveFaction.ID, this.ReleaseRelation / 400);
             }
+            if (GameObject.Chance(this.CaptivePerson.Karma + this.CaptivePerson.PersonalLoyalty * 10))
+            {
+                this.BelongedFaction.Leader.IncreaseKarma(1);
+            }
             this.DoReturn();
             this.DoRelease();
         }
@@ -431,7 +431,7 @@ namespace GameObjects
                 {
                     if (this.CaptivePerson.ArrivingDays > 0)
                     {
-                        return (this.CaptivePerson.ArrivingDays + "天");
+                        return (this.CaptivePerson.ArrivingDays * Session.Current.Scenario.Parameters.DayInTurn + "天");
                     }
                     
                 }

@@ -15,7 +15,7 @@ namespace FactionTechniquesPlugin
 
     public class FactionTechniques
     {
-        public Vector2 Scale = new Vector2(0.82f, 0.82f);
+        public Vector2 Scale = Vector2.One;  // new Vector2(0.82f, 0.82f);
 
         internal List<TechniqueItem> AllTechniques = new List<TechniqueItem>();
         internal Microsoft.Xna.Framework.Point BackgroundSize;
@@ -141,7 +141,7 @@ namespace FactionTechniquesPlugin
                             if (this.ShowingFaction.IsTechniqueUpgrading(item.LinkedTechnique.ID))
                             {
                                 this.CommentsText.AddText("正在升级中……剩余", this.CommentsText.SubTitleColor);
-                                this.CommentsText.AddText(this.ShowingFaction.UpgradingDaysLeft.ToString(), Microsoft.Xna.Framework.Color.Lime);
+                                this.CommentsText.AddText((this.ShowingFaction.UpgradingDaysLeft * Session.Parameters.DayInTurn).ToString(), Microsoft.Xna.Framework.Color.Lime);
                                 this.CommentsText.AddText("天", this.CommentsText.SubTitleColor);
                             }
                             else if (this.ShowingFaction.HasTechnique(item.LinkedTechnique.ID))

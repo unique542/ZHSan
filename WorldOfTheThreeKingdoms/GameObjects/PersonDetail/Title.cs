@@ -126,20 +126,7 @@ namespace GameObjects.PersonDetail
                 generationChance = value;
             }
         }
-        public int RelatedAbility { get; set; }
 
-        public int GetRelatedAbility(Person p)
-        {
-            switch (RelatedAbility)
-            {
-                case 0: return p.Strength;
-                case 1: return p.Command;
-                case 2: return p.Intelligence;
-                case 3: return p.Politics;
-                case 4: return p.Glamour;
-            }
-            return 0;
-        }
         [DataMember]
         public int MapLimit
         {
@@ -224,15 +211,7 @@ namespace GameObjects.PersonDetail
 
         public bool WillLose(Person person) //失去条件
         {
-            foreach (Condition condition in this.LoseConditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return this.LoseConditions.CheckCondition(person);
         }
 
         public bool CheckLimit(Person person)
@@ -268,24 +247,9 @@ namespace GameObjects.PersonDetail
         {
             if (AutoLearn > 0 && !ignoreAutoLearn) return false;
             if (this.ManualAward && !ignoreAutoLearn) return false;
-            foreach (Condition condition in this.Conditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-            foreach (Condition condition in this.ArchitectureConditions.Conditions.Values)
-            {
-                if (person.LocationArchitecture == null) return false;
-                if (!condition.CheckCondition(person.LocationArchitecture)) return false;
-            }
-            foreach (Condition condition in this.FactionConditions.Conditions.Values)
-            {
-                if (person.BelongedFaction == null) return false;
-                if (!condition.CheckCondition(person.BelongedFaction)) return false;
-            }
-           
+            if (!Condition.CheckConditionList(this.Conditions.Conditions.Values, person)) return false;
+            if (!Condition.CheckConditionList(this.ArchitectureConditions.Conditions.Values, person.LocationArchitecture)) return false;
+            if (!Condition.CheckConditionList(this.FactionConditions.Conditions.Values, person.BelongedFaction)) return false;
             return CheckLimit(person);
         }
 
@@ -295,14 +259,7 @@ namespace GameObjects.PersonDetail
             {
                 if (condition.Kind.ID == 902) return false;
             }
-            foreach (Condition c in this.GenerateConditions.Conditions.Values)
-            {
-                if (!c.CheckCondition(p))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.GenerateConditions.CheckCondition(p);
         }
 
         public bool CanBeBorn()
@@ -320,14 +277,7 @@ namespace GameObjects.PersonDetail
             {
                 if (condition.Kind.ID == 901) return false;
             }
-            foreach (Condition c in this.GenerateConditions.Conditions.Values)
-            {
-                if (!c.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.GenerateConditions.CheckCondition(person);
         }
 
         public GameObjectList GetConditionList()
@@ -417,17 +367,12 @@ namespace GameObjects.PersonDetail
                 this.level = value;
             }
         }
-
-        private int? merit = null;
+        
         public int Merit
         {
             get
             {
-                if (merit == null)
-                {
-                    merit = (int)(Math.Pow(Math.Max(1, AIPersonValue - 15) * 0.2828 + 1, 0.75) * 5);
-                }
-                return merit.Value;
+                return (int) AIPersonValue;
             }
         }
 
@@ -436,24 +381,15 @@ namespace GameObjects.PersonDetail
         {
             get
             {
-                if (fightingMerit == null)
-                {
-                    fightingMerit = (int)(Math.Pow(Math.Max(1, AIFightingPersonValue - 15) * 0.2828 + 1, 0.75) * 5);
-                }
-                return fightingMerit.Value;
+                return (int) AIFightingPersonValue;
             }
         }
 
-        private int? subOfficerMerit = null;
         public int SubOfficerMerit
         {
             get
             {
-                if (subOfficerMerit == null)
-                {
-                    subOfficerMerit = (int)(Math.Pow(Math.Max(1, AISubOfficerPersonValue - 15) * 0.2828 + 1, 0.75) * 5);
-                }
-                return subOfficerMerit.Value;
+                return (int) AISubOfficerPersonValue;
             }
         }
 
@@ -604,7 +540,17 @@ namespace GameObjects.PersonDetail
                 {
                     return aiPersonLevel.Value;
                 }
-                aiPersonLevel = (int)(Math.Sqrt(Math.Max(1, AIPersonValue - 15)) * 0.2828 + 1);
+                if (AIPersonValue < 14)
+                {
+                    aiPersonLevel = 1;
+                }
+                else
+                {
+                    double a = 35.0 / 11.0;
+                    float b = 5;
+                    double c = 14 - AIPersonValue;
+                    aiPersonLevel = (int)Math.Ceiling((-b + Math.Sqrt(b * b - 4 * a * c)) / (2 * a));
+                }
                 return aiPersonLevel.Value;
             }
         }

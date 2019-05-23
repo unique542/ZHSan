@@ -12,9 +12,9 @@ namespace WorldOfTheThreeKingdomsEditor
 {
     class InfleunceKindTab : BaseTab<InfluenceKind>
     {
-        protected override GameObjectList GetDataList(GameScenario scen)
+        protected override IItemList GetDataList(GameScenario scen)
         {
-            return scen.GameCommonData.AllInfluenceKinds.GetInfluenceKindList();
+            return new GameObjectDictionaryItemList(scen.GameCommonData.AllInfluenceKinds.InfluenceKinds);
         }
 
         protected override Dictionary<string, string> GetDefaultValues()
@@ -38,9 +38,21 @@ namespace WorldOfTheThreeKingdomsEditor
             };
         }
 
-        public InfleunceKindTab(GameScenario scen, DataGrid dg)
+        protected override Dictionary<String, String> GetHelpText()
         {
-            init(scen, dg);
+            return new Dictionary<string, string>()
+            {
+                {"Type","种类" },
+                {"Name","名称" },
+                {"Combat","战斗" },
+                {"AIPersonValue","武將AI值" },
+                {"AIPersonValuePow","武將AI值乘冪" }
+            };
+        }
+
+        public InfleunceKindTab(GameScenario scen, DataGrid dg, TextBlock helpTextBlock)
+        {
+            init(scen, dg, helpTextBlock);
         }
     }
 }

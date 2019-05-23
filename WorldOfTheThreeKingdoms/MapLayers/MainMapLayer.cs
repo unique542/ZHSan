@@ -1051,6 +1051,18 @@ namespace WorldOfTheThreeKingdoms.GameScreens.ScreenLayers
             {
                 return Session.Current.Scenario.ScenarioMap.TileHeight;
             }
+            set
+            {
+                Session.Current.Scenario.ScenarioMap.TileHeight = value;
+                if (Session.Current.Scenario.ScenarioMap.TileHeight < Session.Current.Scenario.ScenarioMap.TileWidthMin)
+                {
+                    Session.Current.Scenario.ScenarioMap.TileHeight = Session.Current.Scenario.ScenarioMap.TileWidthMin;
+                }
+                else if (Session.Current.Scenario.ScenarioMap.TileHeight > Session.Current.Scenario.ScenarioMap.TileWidthMax)
+                {
+                    Session.Current.Scenario.ScenarioMap.TileHeight = Session.Current.Scenario.ScenarioMap.TileWidthMax;
+                }
+            }
         }
 
         public int TileWidth
@@ -1062,13 +1074,13 @@ namespace WorldOfTheThreeKingdoms.GameScreens.ScreenLayers
             set
             {
                 Session.Current.Scenario.ScenarioMap.TileWidth = value;
-                if (Session.Current.Scenario.ScenarioMap.TileWidth < this.tileWidthMin)
+                if (Session.Current.Scenario.ScenarioMap.TileWidth < Session.Current.Scenario.ScenarioMap.TileWidthMin)
                 {
-                    Session.Current.Scenario.ScenarioMap.TileWidth = this.tileWidthMin;
+                    Session.Current.Scenario.ScenarioMap.TileWidth = Session.Current.Scenario.ScenarioMap.TileWidthMin;
                 }
-                else if (Session.Current.Scenario.ScenarioMap.TileWidth > this.tileWidthMax)
+                else if (Session.Current.Scenario.ScenarioMap.TileWidth > Session.Current.Scenario.ScenarioMap.TileWidthMax)
                 {
-                    Session.Current.Scenario.ScenarioMap.TileWidth = this.tileWidthMax;
+                    Session.Current.Scenario.ScenarioMap.TileWidth = Session.Current.Scenario.ScenarioMap.TileWidthMax;
                 }
 
             }

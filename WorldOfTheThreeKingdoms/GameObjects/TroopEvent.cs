@@ -25,8 +25,11 @@ namespace GameObjects
 
         public ConditionTable Conditions = new ConditionTable();
 
-        [DataMember]
+        //[DataMember]
         public List<PersonDialog> Dialogs = new List<PersonDialog>();
+
+        [DataMember]
+        public string dialogString { get; set; }
 
         [DataMember]
         public string EffectAreasString { get; set; }
@@ -62,6 +65,9 @@ namespace GameObjects
         [DataMember]
         public String Sound = "";
 
+        [DataMember]
+        public string TryToShowString { get; set; }
+
         public event ApplyTroopEvent OnApplyTroopEvent;
 
         public void Init()
@@ -75,6 +81,11 @@ namespace GameObjects
             SelfEffects = new List<GameObjects.TroopDetail.EventEffect.EventEffect>();
 
             TargetPersons = new List<PersonRelation>();
+
+            if (Dialogs == null)
+            {
+                Dialogs = new List<PersonDialog>();
+            }
         }
 
         public void ApplyEventDialogs(Troop troop)
@@ -238,14 +249,7 @@ namespace GameObjects
 
         public bool CheckCondition(Troop troop)
         {
-            foreach (Condition condition in this.Conditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(troop))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return Condition.CheckConditionList(this.Conditions.Conditions.Values, troop);
         }
 
         public bool CheckTroop(Troop troop)
@@ -322,6 +326,7 @@ namespace GameObjects
 
         public void LoadDialogFromString(Dictionary<int, Person> persons, string data)
         {
+            if (data == null) return;
             char[] separator = new char[] { ' ', '\n', '\r', '\t' };
             string[] strArray = data.Split(separator, StringSplitOptions.RemoveEmptyEntries);
             this.Dialogs.Clear();
@@ -333,6 +338,11 @@ namespace GameObjects
                 if (num2 >= 0)
                 {
                     item.SpeakingPerson = persons[num2];
+                    item.SpeakingPersonID = num2;
+                } else
+                {
+                    item.SpeakingPerson = null;
+                    item.SpeakingPersonID = -1;
                 }
                 item.Text = strArray[i + 1];
                 this.Dialogs.Add(item);
@@ -398,7 +408,7 @@ namespace GameObjects
             }
         }
 
-        public string SaveDialogToString()
+        public string SaveDialogToString()//剧本的部队事件的对话武将默认全部变成了0，而且目前源码转换中，并没有这一块的安排
         {
             string str = "";
             foreach (PersonDialog dialog in this.Dialogs)

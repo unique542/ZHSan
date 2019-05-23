@@ -4,6 +4,7 @@ using GameObjects.Conditions;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using GameManager;
 
 namespace GameObjects.ArchitectureDetail
 {
@@ -109,6 +110,14 @@ namespace GameObjects.ArchitectureDetail
             set
             {
                 this.days = value;
+            }
+        }
+
+        public int DaysText
+        {
+            get
+            {
+                return this.days * Session.Parameters.DayInTurn;
             }
         }
 
@@ -284,6 +293,14 @@ namespace GameObjects.ArchitectureDetail
                         {
                         }
                     }
+                    else if (i.Kind.ID == 3020)
+                    {
+                        return 1;
+                    }
+                    else if (i.Kind.ID == 3210)
+                    {
+                        return 1;
+                    }
                 }
                 return fundIncrease - this.MaintenanceCost * 30;
             }
@@ -293,6 +310,7 @@ namespace GameObjects.ArchitectureDetail
         {
             get
             {
+                if (this.PositionOccupied > 0) return false;
                 bool isExtension = false;
                 foreach (Influence i in this.Influences.Influences.Values)
                 {
@@ -322,13 +340,7 @@ namespace GameObjects.ArchitectureDetail
             {
                 return false;
             }
-            foreach (Conditions.Condition i in this.GetConditionList())
-            {
-                if (!i.CheckCondition(a))
-                {
-                    return false;
-                }
-            }
+            if (!Condition.CheckConditionList(this.Conditions.Conditions.Values, a)) return false;
             if (this.ArchitectureLimit < 9999 && a.GetFacilityKindCount(this.ID) >= this.ArchitectureLimit)
             {
                 return false;

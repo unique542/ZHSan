@@ -95,6 +95,26 @@ namespace GameObjects.Conditions
                 return this.Conditions.Count;
             }
         }
+
+        public bool CheckCondition(Person p)
+        {
+            return Condition.CheckConditionList(this.Conditions.Values, p);
+        }
+
+        public bool CheckPersonalityCondition(Person p)
+        {
+            foreach (Condition j in this.Conditions.Values)
+            {
+                if (j.Kind.ID == 600 || j.Kind.ID == 610) //check personality kind only
+                {
+                    if (!j.CheckCondition(p))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 }
 

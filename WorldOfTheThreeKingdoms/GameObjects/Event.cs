@@ -65,9 +65,11 @@ namespace GameObjects
         public string factionCondString { get; set; }
 
         public List<Condition> factionCond;
+        
+        public List<PersonIdDialog> dialog;
 
         [DataMember]
-        public List<PersonIdDialog> dialog;
+        public string dialogString { get; set; }
 
         [DataMember]
         public string effectString { get; set; }
@@ -78,11 +80,14 @@ namespace GameObjects
 
         public List<PersonDialog> matchedyesDialog = new List<PersonDialog>();
         public List<PersonDialog> matchednoDialog = new List<PersonDialog>();
+        
+        public List<PersonIdDialog> yesdialog = new List<PersonIdDialog>();
+        public List<PersonIdDialog> nodialog = new List<PersonIdDialog>();
 
         [DataMember]
-        public List<PersonIdDialog> yesdialog = new List<PersonIdDialog>();
+        public string yesdialogString { get; set; }
         [DataMember]
-        public List<PersonIdDialog> nodialog = new List<PersonIdDialog>();
+        public string nodialogString { get; set; }
 
         public Dictionary<Person, List<EventEffect>> matchedYesEffect;
         public Dictionary<Person, List<EventEffect>> matchedNoEffect;
@@ -115,10 +120,11 @@ namespace GameObjects
         public List<EventEffect> yesArchitectureEffect = new List<EventEffect>();
         public List<EventEffect> noArchitectureEffect = new List<EventEffect>();
 
-        [DataMember]
         public List<PersonIdDialog> scenBiography = new List<PersonIdDialog>() ;
 
         [DataMember]
+        public string scenBiographyString { get; set; }
+        
         public List<PersonDialog> matchedScenBiography = new List<PersonDialog> () ;
 
         [DataMember]
@@ -135,6 +141,21 @@ namespace GameObjects
         public int EndYear = 99999;
         [DataMember]
         public int EndMonth = 12;
+
+        [DataMember]
+        public bool Minor = false;
+
+        [DataMember]
+        public string TryToShowString { get; set; }
+
+        private bool involveLeader = false;
+        public bool InvolveLeader
+        {
+            get
+            {
+                return involveLeader;
+            }
+        }
 
         public event ApplyEvent OnApplyEvent;
 
@@ -164,6 +185,10 @@ namespace GameObjects
             {
                 nodialog = new List<PersonIdDialog>();
             }
+            if (scenBiography == null)
+            {
+                scenBiography = new List<PersonIdDialog>();
+            }
         }
 
         public void ApplyEventDialogs(Architecture a, Screen screen)
@@ -182,7 +207,7 @@ namespace GameObjects
             }
             if (nextScenario.Length > 0)
             {
-                Session.Current.Scenario.EnableLoadAndSave = false;
+                // Session.Current.Scenario.EnableLoadAndSave = false;
 
                 List<int> factionIds = new List<int>();
                 foreach (Faction f in Session.Current.Scenario.PlayerFactions) 
@@ -301,19 +326,7 @@ namespace GameObjects
 
         public bool matchEventPersons(Architecture a)
         {
-            GameObjectList allPersons = a.PersonAndChildren.GetList();
-            foreach (Person p in a.NoFactionPersons)
-            {
-                allPersons.Add(p);
-            }
-            foreach (Captive p in a.Captives)
-            {
-                allPersons.Add(p.CaptivePerson);
-            }
-            foreach (Person p in a.Feiziliebiao)
-            {
-                allPersons.Add(p);
-            }
+            GameObjectList allPersons = a.AllPersonAndChildren.GetList();
 
             HashSet<int> haveCond = new HashSet<int>();
             foreach (KeyValuePair<int, List<Condition>> i in this.personCond)
@@ -348,15 +361,7 @@ namespace GameObjects
             {
                 foreach (Person p in allPersons)
                 {
-                    bool ok = true;
-                    foreach (Condition c in i.Value)
-                    {
-                        if (!c.CheckCondition(p, this))
-                        {
-                            ok = false;
-                            break;
-                        }
-                    }
+                    bool ok = Condition.CheckConditionList(i.Value, p, this);
                     if (ok)
                     {
                         if (this.person[i.Key].Contains(null) || this.person[i.Key].Contains(p))
@@ -373,17 +378,14 @@ namespace GameObjects
                 {
                     if (p != null /*&& p.ID >= 7000 && p.ID < 8000*/)
                     {
-                        bool ok = true;
+                        bool ok;
                         if (this.personCond.ContainsKey(i.Key))
                         {
-                            foreach (Condition c in this.personCond[i.Key])
-                            {
-                                if (!c.CheckCondition(p, this))
-                                {
-                                    ok = false;
-                                    break;
-                                }
-                            }
+                            ok = Condition.CheckConditionList(this.personCond[i.Key], p, this);
+                        }
+                        else
+                        {
+                            ok = true;
                         }
                         if (ok)
                         {
@@ -489,6 +491,17 @@ namespace GameObjects
                 matchedNoEffect.Add(matchedPersons[i.Key], i.Value);
             }
 
+            if (a.BelongedFaction != null)
+            {
+                foreach (Person p in matchedPersons.Values)
+                {
+                    if (p == a.BelongedFaction.Leader && Session.Current.Scenario.IsPlayer(a.BelongedFaction))
+                    {
+                        involveLeader = true;
+                    }
+                }
+            }
+
             return true;
         }
 
@@ -520,21 +533,8 @@ namespace GameObjects
                 if (Session.Current.Scenario.Date.Month > this.EndMonth) return false;
             }
 
-            foreach (Condition i in this.architectureCond)
-            {
-                if (!i.CheckCondition(a, this))
-                {
-                    return false;
-                }
-            }
-
-            foreach (Condition i in this.factionCond)
-            {
-                if (a.BelongedFaction == null || !i.CheckCondition(a.BelongedFaction, this))
-                {
-                    return false;
-                }
-            }
+            if (!Condition.CheckConditionList(this.architectureCond, a, this)) return false;
+            if (!Condition.CheckConditionList(this.factionCond, a.BelongedFaction, this)) return false;
 
             if (architecture.Count > 0 || faction.Count > 0)
             {

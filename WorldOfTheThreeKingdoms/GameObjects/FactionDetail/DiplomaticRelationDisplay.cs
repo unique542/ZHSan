@@ -1,4 +1,5 @@
-﻿using GameObjects;
+﻿using GameManager;
+using GameObjects;
 using System;
 
 
@@ -61,6 +62,25 @@ namespace GameObjects.FactionDetail
             {
                 this.LinkedDiplomaticRelation.Truce = value;
             }
+        }
+
+        public int TruceDays
+        {
+            get
+            {
+                return Truce * Session.Current.Scenario.Parameters.DayInTurn;
+            }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is DiplomaticRelationDisplay)) return false;
+            return this.LinkedDiplomaticRelation.Equals(((DiplomaticRelationDisplay)obj).LinkedDiplomaticRelation);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.LinkedDiplomaticRelation.GetHashCode();
         }
     }
 }

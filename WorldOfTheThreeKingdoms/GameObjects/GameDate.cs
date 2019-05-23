@@ -63,7 +63,7 @@ namespace GameObjects
             {
                 return false;
             }
-            if (this.Day >= 30)
+            if (this.Day >= 30 - Session.Parameters.DayInTurn + 1)
             {
                 if ((this.OnMonthPassed != null) && !this.OnMonthPassed())
                 {
@@ -176,6 +176,10 @@ namespace GameObjects
             {
                 this.OnSeasonChange(this.Season);
             }
+            //*jokosany每个月重新随机选择一首背景音乐,必须放在this.SetSeason();之后
+            Session.MainGame.mainGameScreen.SwichMusic(Session.Current.Scenario.Date.Season);
+            //  Session.MainGame.mainGameScreen.SwichMusic(GameSeason.秋);
+            // Session.MainGame.mainGameScreen.SwichMusic(this.Season);
         }
 
         public bool StartRunning()
@@ -188,7 +192,7 @@ namespace GameObjects
             {
                 return false;
             }
-            if (this.Day == 1)
+            if (this.Day <= Session.Current.Scenario.Parameters.DayInTurn)
             {
                 if ((this.OnMonthStarting != null) && !this.OnMonthStarting())
                 {

@@ -205,12 +205,13 @@ namespace GameObjects
 
         public void addAssassinateEntry(GameDate date, Person killer, Person killed)
         {
+            String killedFactionName = killed.BelongedFaction == null ? "" : killed.BelongedFaction.Name;
             this.addTableEntry(date, composeFactionList(killer.BelongedFaction, killed.BelongedFaction),
-                String.Format(yearTableStrings["assassinate"], killed.BelongedFaction.Name, killed.Name, killed.LocationArchitecture.Name, killer.BelongedFaction.Name, killer.Name, killed.Age), true);
+                String.Format(yearTableStrings["assassinate"], killedFactionName, killed.Name, killed.LocationArchitecture.Name, killedFactionName, killer.Name, killed.Age), true);
             this.addPersonInGameBiography(killer, date,
-                String.Format(yearTableStrings["assassinate_p"], killed.BelongedFaction.Name, killed.Name, killed.LocationArchitecture.Name, killer.BelongedFaction.Name, killer.Name, killed.Age));
+                String.Format(yearTableStrings["assassinate_p"], killedFactionName, killed.Name, killed.LocationArchitecture.Name, killedFactionName, killer.Name, killed.Age));
             this.addPersonInGameBiography(killed, date,
-                String.Format(yearTableStrings["assassinate_q"], killed.BelongedFaction.Name, killed.Name, killed.LocationArchitecture.Name, killer.BelongedFaction.Name, killer.Name, killed.Age));
+                String.Format(yearTableStrings["assassinate_q"], killedFactionName, killed.Name, killed.LocationArchitecture.Name, killedFactionName, killer.Name, killed.Age));
         }
 
         public void addReverseAssassinateEntry(GameDate date, Person killer, Person killed)
@@ -378,6 +379,16 @@ namespace GameObjects
                 String.Format(yearTableStrings["becomePrincess_p"], p.Name, p.BelongedArchitecture.Name, leader.Name));
             this.addPersonInGameBiography(leader, date,
                 String.Format(yearTableStrings["becomePrincess_q"], p.Name, p.BelongedArchitecture.Name, leader.Name));
+        }
+
+        public void addReleaseFromPrincessEntry(GameDate date, Person p, Person leader)
+        {
+            this.addTableEntry(date, composeFactionList(p.BelongedFaction),
+                String.Format(yearTableStrings["releaseFromPrincess"], p.Name, p.BelongedArchitecture.Name, leader.Name), false);
+            this.addPersonInGameBiography(p, date,
+                String.Format(yearTableStrings["releaseFromPrincess_p"], p.Name, p.BelongedArchitecture.Name, leader.Name));
+            this.addPersonInGameBiography(leader, date,
+                String.Format(yearTableStrings["releaseFromPrincess_q"], p.Name, p.BelongedArchitecture.Name, leader.Name));
         }
 
         public void addSelectPrinceEntry(GameDate date, Person p, Person leader)//立储
@@ -618,7 +629,7 @@ namespace GameObjects
                         architectureStrings,
                         "",
                         "",
-                        dayDiff + "天",
+                        dayDiff  * Session.Parameters.DayInTurn + "天",
                         victorDescription), false);
                 }
                 this.addPersonInGameBiography(p, date, String.Format(yearTableStrings["battleSkirmish_p"],
@@ -628,7 +639,7 @@ namespace GameObjects
                     architectureStrings,
                     "",
                     "",
-                    dayDiff + "天",
+                    dayDiff  * Session.Parameters.DayInTurn + "天",
                     selfDescription));
             }
             else
@@ -647,7 +658,7 @@ namespace GameObjects
                                 a.Name,
                                 a.BelongedFaction == null ? "贼军" : a.BelongedFaction.Name,
                                 a.OldFactionName,
-                                dayDiff + "天"), false);
+                                dayDiff  * Session.Parameters.DayInTurn + "天"), false);
                         }
 
                         if (p.BelongedFaction == a.BelongedFaction)
@@ -659,7 +670,7 @@ namespace GameObjects
                                     a.Name,
                                     a.BelongedFaction == null ? "贼军" : a.BelongedFaction.Name,
                                     a.OldFactionName,
-                                    dayDiff + "天"));
+                                    dayDiff * Session.Parameters.DayInTurn + "天"));
                         }
                         else if (p.BelongedFaction.Name == a.OldFactionName)
                         {
@@ -670,7 +681,7 @@ namespace GameObjects
                                     a.Name,
                                     a.BelongedFaction == null ? "贼军" : a.BelongedFaction.Name,
                                     a.OldFactionName,
-                                    dayDiff + "天"));
+                                    dayDiff * Session.Parameters.DayInTurn + "天"));
                         }
                         else
                         {
@@ -681,7 +692,7 @@ namespace GameObjects
                                     a.Name,
                                     a.BelongedFaction == null ? "贼军" : a.BelongedFaction.Name,
                                     a.OldFactionName,
-                                    dayDiff + "天"));
+                                    dayDiff * Session.Parameters.DayInTurn + "天"));
                         }
                     }
                     else
@@ -709,7 +720,7 @@ namespace GameObjects
                                 a.Name,
                                 offenderString,
                                 a.OldFactionName,
-                                dayDiff + "天"), false);
+                                dayDiff * Session.Parameters.DayInTurn + "天"), false);
                         }
 
                         if (a.BelongedFaction == p.BelongedFaction)
@@ -721,7 +732,7 @@ namespace GameObjects
                                 a.Name,
                                 offenderString,
                                 a.OldFactionName,
-                                dayDiff + "天"));
+                                dayDiff * Session.Parameters.DayInTurn + "天"));
                         }
                         else
                         {
@@ -732,7 +743,7 @@ namespace GameObjects
                                 a.Name,
                                 offenderString,
                                 a.OldFactionName,
-                                dayDiff + "天"));
+                                dayDiff * Session.Parameters.DayInTurn + "天"));
                         }
                     }
                 }

@@ -394,10 +394,13 @@ namespace WorldOfTheThreeKingdoms.GameScreens
             if (((Session.Current.Scenario.CurrentPlayer != null) && father.BelongedArchitecture != null &&
                     Session.Current.Scenario.IsCurrentPlayer(father.BelongedArchitecture.BelongedFaction)) || Session.GlobalVariables.SkyEye)
             {
-                //person.TextResultString = person.Name;
-                //this.Plugins.tupianwenziPlugin.SetGameObjectBranch(father, father, TextMessageKind.ChildrenBorn, "xiaohaichusheng");
-                //this.Plugins.tupianwenziPlugin.SetPosition(ShowPosition.Bottom);
-                //this.Plugins.tupianwenziPlugin.IsShowing = true;
+                if (father.BelongedFaction != null && father.BelongedFaction.Leader == father && mother.Status == PersonStatus.Princess)
+                {
+                    person.TextResultString = person.Name;
+                    this.Plugins.tupianwenziPlugin.SetGameObjectBranch(father, father, TextMessageKind.ChildrenBorn, "xiaohaichusheng");
+                    this.Plugins.tupianwenziPlugin.SetPosition(ShowPosition.Bottom, Session.MainGame.mainGameScreen);
+                    this.Plugins.tupianwenziPlugin.IsShowing = true;
+                }
 
                 if (father.BelongedArchitecture != null)
                 {
@@ -457,8 +460,9 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                 this.Plugins.tupianwenziPlugin.SetGameObjectBranch(p, p, msgKind, shijian, tupian, shengyin);
                 this.Plugins.tupianwenziPlugin.SetPosition(ShowPosition.Bottom, Session.MainGame.mainGameScreen);
                 this.Plugins.tupianwenziPlugin.IsShowing = true;
-                this.PauseMusic();
-                this.tufashijianzantingyinyue = true;
+                //jokosany取消暂停音乐，下面共计4个
+               // this.PauseMusic();
+               // this.tufashijianzantingyinyue = true;
             }
         }
 
@@ -479,8 +483,8 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                 this.Plugins.tupianwenziPlugin.SetGameObjectBranch(p, p, msgKind, shijian, tupian, shengyin);
                 this.Plugins.tupianwenziPlugin.SetPosition(ShowPosition.Bottom, Session.MainGame.mainGameScreen);
                 this.Plugins.tupianwenziPlugin.IsShowing = true;
-                this.PauseMusic();
-                this.tufashijianzantingyinyue = true;
+               // this.PauseMusic();
+               // this.tufashijianzantingyinyue = true;
             }
         }
 
@@ -504,8 +508,8 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                 this.Plugins.tupianwenziPlugin.SetGameObjectBranch(p, p, shijian, tupian, shengyin);
                 this.Plugins.tupianwenziPlugin.SetPosition(ShowPosition.Bottom, Session.MainGame.mainGameScreen);
                 this.Plugins.tupianwenziPlugin.IsShowing = true;
-                this.PauseMusic();
-                this.tufashijianzantingyinyue = true;
+               // this.PauseMusic();
+              //  this.tufashijianzantingyinyue = true;
             }
         }
 
@@ -521,16 +525,13 @@ namespace WorldOfTheThreeKingdoms.GameScreens
 
             if ((zongshixianshi) || p.BelongedFaction == Session.Current.Scenario.CurrentPlayer)
             {
-
-
-
                 p.TextResultString = TextResultString;
                 p.TextDestinationString = TextDestinationString;
                 this.Plugins.tupianwenziPlugin.SetGameObjectBranch(p, p, shijian, tupian, shengyin);
                 this.Plugins.tupianwenziPlugin.SetPosition(ShowPosition.Bottom, Session.MainGame.mainGameScreen);
                 this.Plugins.tupianwenziPlugin.IsShowing = true;
-                this.PauseMusic();
-                this.tufashijianzantingyinyue = true;
+              //  this.PauseMusic();
+               // this.tufashijianzantingyinyue = true;
 
             }
         }
@@ -1471,6 +1472,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                 if (Person.GetInjuryString(p.InjureRate) != Person.GetInjuryString(p.OldInjureRate) && 
                     (p.OldInjureRate - p.InjureRate >= 0.1 || (p.OldInjureRate >= 1 && p.InjureRate < 1)))
                 {
+                    p.OldInjureRate = p.InjureRate;
                     p.TextResultString = p.InjuryString;
                     this.Plugins.GameRecordPlugin.AddBranch(p, "OfficerSick", p.Position);
                 }

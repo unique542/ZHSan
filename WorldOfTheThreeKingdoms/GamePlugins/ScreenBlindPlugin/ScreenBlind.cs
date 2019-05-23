@@ -57,6 +57,7 @@ namespace ScreenBlindPlugin
             this.FactionText.Draw(0.4299f);
 
             //阿柒:新增势力信息显示相关
+            this.FactionTechText.Draw(0.4299f);
             this.LeaderNameText.Draw(0.4299f);
             this.PrinceNameText.Draw(0.4299f);
             this.CounsellorNameText.Draw(0.4299f);
@@ -150,7 +151,7 @@ namespace ScreenBlindPlugin
 
                     this.FactionText.Text = string.Concat(new object[] { Session.Current.Scenario.CurrentFaction.Name, " • ", Session.Current.Scenario.CurrentFaction.TotalTechniquePoint, });
 
-                    this.FactionTechText.Text = string.Concat(new object[] { Session.Current.Scenario.GameCommonData.AllTechniques.GetTechnique(Session.Current.Scenario.CurrentFaction.UpgradingTechnique), "•", "余", Session.Current.Scenario.CurrentFaction.UpgradingDaysLeft, "天" });
+                    this.FactionTechText.Text = string.Concat(new object[] { Session.Current.Scenario.GameCommonData.AllTechniques.GetTechnique(Session.Current.Scenario.CurrentFaction.UpgradingTechnique), "•", "余", Session.Current.Scenario.CurrentFaction.UpgradingDaysLeft * Session.Parameters.DayInTurn, "天" });
                 }
                 else
                 {

@@ -97,6 +97,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
             this.CurrentPerson = Session.MainGame.mainGameScreen.Plugins.TabListPlugin.SelectedItem as Person;
             if (this.CurrentPerson != null)
             {
+                Session.Current.Scenario.CurrentFaction.Leader.GoForHouGong(this.CurrentPerson);
                 String msgKey;
                 if (this.CurrentPerson.Hates(Session.Current.Scenario.CurrentFaction.Leader))
                 {
@@ -106,7 +107,6 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                 {
                     msgKey = "chongxing";
                 }
-                Session.Current.Scenario.CurrentFaction.Leader.GoForHouGong(this.CurrentPerson);
                 Session.MainGame.mainGameScreen.xianshishijiantupian(this.CurrentPerson, Session.Current.Scenario.CurrentFaction.Leader.Name, TextMessageKind.Hougong, msgKey, this.CurrentPerson.ID.ToString(), "hougong", true);
                 //this.mainGameScreen.DateGo(1);
             }
@@ -231,6 +231,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                 foreach (DiplomaticRelationDisplay display in selectedList)
                 {
                     Session.MainGame.mainGameScreen.xianshishijiantupian(Session.Current.Scenario.NeutralPerson, this.CurrentArchitecture.BelongedFaction.Leader.Name, "ResetDiplomaticRelation", "ResetDiplomaticRelation.jpg", "ResetDiplomaticRelation", display.FactionName, true);
+                    this.CurrentArchitecture.BelongedFaction.Leader.DecreaseKarma(5);
                     display.Relation = 0;
                 }
             }
@@ -389,7 +390,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
 
         private void FrameFunction_Architecture_AfterGetAssassinatePerson()
         {
-            this.CurrentGameObjects = this.CurrentArchitecture.MovablePersons.GetSelectedList();
+            this.CurrentGameObjects = this.CurrentArchitecture.Persons.GetSelectedList();
             if (this.CurrentGameObjects != null)
             {
                 this.CurrentPersons = this.CurrentGameObjects.GetList();
@@ -399,7 +400,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
 
         private void FrameFunction_Architecture_AfterGetAssassinatePersonTarget()
         {
-            this.CurrentGameObjects = this.CurrentArchitecture.Persons.GetSelectedList();
+            this.CurrentGameObjects = this.CurrentArchitecture.AssassinatablePersons((this.CurrentPersons[0] as Person).BelongedFaction).GetSelectedList();
             if ((this.CurrentGameObjects != null) && (this.CurrentGameObjects.Count == 1))
             {
                 foreach (Person person in this.CurrentPersons)
@@ -529,10 +530,10 @@ namespace WorldOfTheThreeKingdoms.GameScreens
         private void FrameFunction_Architecture_AfterSelectTrainableChildren()
         {
             GameObjectList selectedList = this.CurrentArchitecture.BelongedFaction.Children.GetSelectedList();
-            if ((selectedList != null) && (selectedList.Count == 1))
+            if ((selectedList != null) && (selectedList.Count >= 1))
             {
-                this.CurrentPerson = selectedList[0] as Person;
-                Session.MainGame.mainGameScreen.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.TrainPolicy, FrameFunction.SelectTrainPolicy, false, true, true, false, this.CurrentPerson.TrainPolicies(), null, "选择培育方针", "");
+                this.CurrentPersons = selectedList;
+                Session.MainGame.mainGameScreen.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.TrainPolicy, FrameFunction.SelectTrainPolicy, false, true, true, false, (this.CurrentPersons[0] as Person).TrainPolicies(), null, "选择培育方针", "");
             }
             this.CurrentArchitecture.Persons.ClearSelected();
         }
@@ -542,7 +543,10 @@ namespace WorldOfTheThreeKingdoms.GameScreens
             GameObjectList selectedList = Session.Current.Scenario.GameCommonData.AllTrainPolicies.GetSelectedList();
             if ((selectedList != null) && (selectedList.Count == 1))
             {
-                this.CurrentPerson.TrainPolicy = (TrainPolicy) selectedList[0];
+                foreach (Person p in this.CurrentPersons)
+                {
+                    p.TrainPolicy = (TrainPolicy)selectedList[0];
+                }
             }
             this.CurrentArchitecture.Persons.ClearSelected();
         }
@@ -619,7 +623,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                             military.StartingArchitecture = this.CurrentArchitecture;
                             military.TargetArchitecture = targetArchitecture;
                             //military.ArrivingDays = Math.Max(1, military.TransferDays(distance));
-                            military.ArrivingDays = Math.Max(1, military.TransferDays(distance)) * Session.Parameters.DayInTurn;
+                            military.ArrivingDays = Math.Max(1, military.TransferDays(distance));
                             this.CurrentArchitecture.RemoveMilitary(military);
                             this.CurrentArchitecture.BelongedFaction.TransferingMilitaries.Add(military);
                             this.CurrentArchitecture.BelongedFaction.TransferingMilitaryCount++;
@@ -664,6 +668,20 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                     this.CurrentPersons = this.CurrentGameObjects.GetList();
                     Session.MainGame.mainGameScreen.PushUndoneWork(new UndoneWorkItem(UndoneWorkKind.Selecting, SelectingUndoneWorkKind.MoveCaptive));
 
+                }
+            }
+        }
+
+        private void FrameFunction_Architecture_AfterGetAutoCampaignMilitaries() //自动出征
+        {
+            if (this.CurrentArchitecture != null)
+            {
+                this.CurrentGameObjects = this.CurrentArchitecture.GetCampaignMilitaryList().GetSelectedList();
+                if (this.CurrentGameObjects != null)
+                {
+                    this.CurrentMilitaries = this.CurrentGameObjects.GetList();
+                    this.CurrentMilitary= this.CurrentMilitaries[0] as Military;
+                    Session.MainGame.mainGameScreen.PushUndoneWork(new UndoneWorkItem(UndoneWorkKind.Selecting, SelectingUndoneWorkKind.ArchitectureAvailableContactArea));
                 }
             }
         }
@@ -1000,7 +1018,22 @@ namespace WorldOfTheThreeKingdoms.GameScreens
             }
         }
 
-       
+        private void FrameFunction_Monarch_hougongTop_releaseFeizi()
+        {
+            if (this.CurrentArchitecture != null)
+            {
+                this.CurrentGameObjects = this.CurrentArchitecture.Feiziliebiao.GetSelectedList();
+                if (this.CurrentGameObjects != null)
+                {
+                    foreach (GameObject o in this.CurrentGameObjects)
+                    {
+                        ((Person)o).feiziRelease();
+                    }
+
+                }
+            }
+        }
+
         /*
         private void FrameFunction_Monarch_ZhaoXianBang_DengYong() //强制登用武将
         {
@@ -1115,6 +1148,10 @@ namespace WorldOfTheThreeKingdoms.GameScreens
 
                 case FrameFunction.PersonTransfer:
                     this.FrameFunction_Architecture_PersonTransfer();
+                    break;
+
+                case FrameFunction.GetAutoCampaignMilitaries://自动出征
+                    this.FrameFunction_Architecture_AfterGetAutoCampaignMilitaries();
                     break;
 
                 case FrameFunction.GetTransferMilitary://运输编队
@@ -1406,6 +1443,10 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                     this.FrameFunction_Monarch_hougongTop_moveFeizi();
                     break;
 
+                case FrameFunction.ReleaseFeizi:
+                    this.FrameFunction_Monarch_hougongTop_releaseFeizi();
+                    break;
+
                 case FrameFunction.MoveCaptive: //俘虏可移动
                     this.FrameFunction_Monarch_KillRelease_MoveCaptive();
                     break;
@@ -1505,6 +1546,105 @@ namespace WorldOfTheThreeKingdoms.GameScreens
         public void Initialize()
         {
 
+        }
+
+        public void SetTroopsPosition(Point position)
+        {
+            MilitaryList templist = new MilitaryList();
+            foreach(Military military in this.CurrentMilitaries)
+            {
+                Person leader=new Person();
+                PersonList persons=new PersonList();
+                if(this.CurrentArchitecture.Persons.Count==0 || this.CurrentArchitecture.GetAllAvailableArea(false).Area.Count==0)
+                {
+                    break;
+                }
+                else if (this.CurrentArchitecture.Persons.Count > 0 && this.CurrentArchitecture.GetAllAvailableArea(false).Area.Count > 0)
+                {
+                    if (this.CurrentArchitecture.Persons.HasGameObject(military.FollowedLeader))
+                    {
+                        leader = military.FollowedLeader;
+                    }
+                    else if (this.CurrentArchitecture.Persons.HasGameObject(military.Leader))
+                    {
+                        leader = military.Leader;
+                    }
+                    else
+                    {
+                        templist.Add(military);
+                        continue;
+                    }
+                    persons.Add(leader);
+                    foreach (Person p in leader.preferredTroopPersons)
+                    {
+                        if (this.CurrentArchitecture.Persons.HasGameObject(p) && !persons.HasGameObject(p))
+                        {
+                            persons.Add(p);
+                        }
+                    }
+                    Point point = Session.Current.Scenario.GetClosestPoint(this.CurrentArchitecture.GetAllAvailableArea(false),position);
+
+                    this.CurrentTroop = this.CurrentArchitecture.CreateTroop(persons, leader, military, this.CurrentArchitecture.Food>military.FoodMax? military.FoodMax:0, point);
+                    this.CurrentTroop.zijin = this.CurrentArchitecture.Fund > military.zijinzuidazhi ? military.zijinzuidazhi : 0;
+                    this.CurrentTroop.ManualControl = true;
+                    this.CurrentTroop.mingling = "——";
+                    this.CurrentArchitecture.DecreaseFund(this.CurrentTroop.zijin);
+                    if ((this.CurrentArchitecture.DefensiveLegion == null) || (this.CurrentArchitecture.DefensiveLegion.Troops.Count == 0))
+                    {
+                        this.CurrentArchitecture.CreateDefensiveLegion();
+                    }
+                    this.CurrentArchitecture.DefensiveLegion.AddTroop(this.CurrentTroop);
+                    Session.MainGame.mainGameScreen.Plugins.PersonBubblePlugin.AddPerson(leader, this.CurrentTroop.Position, TextMessageKind.StartCampaign, "Campaign");
+                    //int minlength = 9999;
+                    //foreach (Point point2 in this.CurrentArchitecture.GetAllAvailableArea(false).Area)
+                    //{
+                    //    if(Math.Abs(point2.X-position.X)+Math.Abs())
+                    //}
+                }
+            }
+            foreach (Military military in templist)
+            {
+                Person leader = new Person();
+                PersonList persons = new PersonList();
+                if (this.CurrentArchitecture.Persons.Count == 0 || this.CurrentArchitecture.GetAllAvailableArea(false).Area.Count == 0)
+                {
+                    break;
+                }
+                else if (this.CurrentArchitecture.Persons.Count > 0 && this.CurrentArchitecture.GetAllAvailableArea(false).Area.Count > 0)
+                {
+                    if (this.CurrentArchitecture.Persons.HasGameObject(military.FollowedLeader))
+                    {
+                        leader = military.FollowedLeader;
+                    }
+                    else if (this.CurrentArchitecture.Persons.HasGameObject(military.Leader))
+                    {
+                        leader = military.Leader;
+                    }
+                    else
+                    {
+                        leader=this.CurrentArchitecture.GetMaxFightingForcePerson();
+                    }
+                    persons.Add(leader);
+                    Point point = Session.Current.Scenario.GetClosestPoint(this.CurrentArchitecture.GetAllAvailableArea(false), position);
+
+                    this.CurrentTroop = this.CurrentArchitecture.CreateTroop(persons, leader, military, this.CurrentArchitecture.Food > military.FoodMax ? military.FoodMax : 0, point);
+                    this.CurrentTroop.zijin = this.CurrentArchitecture.Fund > military.zijinzuidazhi ? military.zijinzuidazhi : 0;
+                    this.CurrentTroop.ManualControl = true;
+                    this.CurrentTroop.mingling = "——";
+                    this.CurrentArchitecture.DecreaseFund(this.CurrentTroop.zijin);
+                    if ((this.CurrentArchitecture.DefensiveLegion == null) || (this.CurrentArchitecture.DefensiveLegion.Troops.Count == 0))
+                    {
+                        this.CurrentArchitecture.CreateDefensiveLegion();
+                    }
+                    this.CurrentArchitecture.DefensiveLegion.AddTroop(this.CurrentTroop);
+                    Session.MainGame.mainGameScreen.Plugins.PersonBubblePlugin.AddPerson(leader, this.CurrentTroop.Position, TextMessageKind.StartCampaign, "Campaign");
+                    //int minlength = 9999;
+                    //foreach (Point point2 in this.CurrentArchitecture.GetAllAvailableArea(false).Area)
+                    //{
+                    //    if(Math.Abs(point2.X-position.X)+Math.Abs())
+                    //}
+                }
+            }
         }
 
         public void SetCreatingTroopPosition(Point position)

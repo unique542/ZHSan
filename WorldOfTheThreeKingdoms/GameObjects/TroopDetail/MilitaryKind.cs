@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using GameManager;
+using Microsoft.Xna.Framework;
+using GameGlobal;
 
 namespace GameObjects.TroopDetail
 {
@@ -75,7 +77,7 @@ namespace GameObjects.TroopDetail
         private int rationDays;
         private int ridgeAdaptability;
         private float ridgeRate;
-        [DataMember]
+        //[DataMember]
         public TroopSounds Sounds;
         private int speed;
         private int stratagemRadius;
@@ -88,6 +90,7 @@ namespace GameObjects.TroopDetail
         private float wastelandRate;
         private int waterAdaptability;
         private float waterRate;
+        [DataMember]
         public int zijinshangxian;
 
         public InfluenceTable Influences = new InfluenceTable();
@@ -125,7 +128,7 @@ namespace GameObjects.TroopDetail
 
             titleInfluence = -1;
 
-            morphToKindId = -1;
+           // morphToKindId = -1;
 
             AICreateArchitectureConditionWeight = new Dictionary<Condition, float>();
 
@@ -312,6 +315,51 @@ namespace GameObjects.TroopDetail
                 }
                 return false;
             }
+        }
+
+        public int GetTerrainAdaptability(TerrainKind terrain)
+        {
+            switch (terrain)
+            {
+                case TerrainKind.无:
+                    return 0xdac;
+
+                case TerrainKind.平原:
+                    return this.PlainAdaptability;
+
+                case TerrainKind.草原:
+                    return this.GrasslandAdaptability;
+
+                case TerrainKind.森林:
+                    return this.ForrestAdaptability;
+
+                case TerrainKind.湿地:
+                    return this.MarshAdaptability;
+
+                case TerrainKind.山地:
+                    return this.MountainAdaptability;
+
+                case TerrainKind.水域:
+                    return this.WaterAdaptability;
+
+                case TerrainKind.峻岭:
+                    return this.RidgeAdaptability;
+
+                case TerrainKind.荒地:
+                    return this.WastelandAdaptability;
+
+                case TerrainKind.沙漠:
+                    return this.DesertAdaptability;
+
+                case TerrainKind.栈道:
+                    return this.CliffAdaptability;
+            }
+            return 0xdac;
+        }
+
+        public bool IsMovableOnPosition(Point position)
+        {
+            return (this.GetTerrainAdaptability(Session.Current.Scenario.GetTerrainKindByPosition(position)) <= this.Movability);
         }
 
         public override string ToString()
@@ -1244,14 +1292,7 @@ namespace GameObjects.TroopDetail
 
         public bool CheckConditions(Architecture a)
         {
-            foreach (Condition condition in this.CreateConditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(a))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return Condition.CheckConditionList(this.CreateConditions.Conditions.Values, a);
         }
         /*
         public int EachMilitaryKindCount(Faction f)

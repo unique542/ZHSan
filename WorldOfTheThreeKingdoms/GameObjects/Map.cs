@@ -15,10 +15,16 @@ namespace GameObjects
         private int[,] mapData;
         private Point mapDimensions;
         private int tileWidth = 100;
+        private int tileHeight = 100;
         private string dituwenjian;
         private int kuaishu = 20;
         private int meikuaidexiaokuaishu = 10;
         private bool useSimpleArchImages = false;
+
+        [DataMember]
+        public int TileWidthMin = 30;
+        [DataMember]
+        public int TileWidthMax = 100;
 
         [DataMember]
         public string MapName
@@ -44,6 +50,18 @@ namespace GameObjects
                 {
                     dituwenjian = value;
                 }
+            }
+        }
+
+        public void Init()
+        {
+            if (TileWidthMin == 0)
+            {
+                TileWidthMin = 30;
+            }
+            if (TileWidthMax == 0)
+            {
+                TileWidthMax = 100;
             }
         }
 
@@ -177,11 +195,11 @@ namespace GameObjects
         {
             get
             {
-                return this.tileWidth;
+                return this.tileHeight;
             }
             set
             {
-                this.tileWidth = value;
+                this.tileHeight = value;
             }
         }
         [DataMember]

@@ -1,4 +1,5 @@
-﻿using GameObjects;
+﻿using GameManager;
+using GameObjects;
 using GameObjects.Conditions;
 using GameObjects.Influences;
 using GameObjects.TroopDetail;
@@ -146,38 +147,18 @@ namespace GameObjects.PersonDetail
 
         public bool IsAIable(Troop troop)
         {
-            foreach (Condition condition in this.AIConditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(troop))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return Condition.CheckConditionList(this.AIConditions.Conditions.Values, troop);
         }
 
         public bool IsCastable(Troop troop)
         {
-            foreach (Condition condition in this.CastConditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(troop))
-                {
-                    return false;
-                }
-            }
-            return true;
+            if (this.CastConditions == null) return false;
+            return Condition.CheckConditionList(this.CastConditions.Conditions.Values, troop);
         }
 
         public bool IsLearnable(Person person)
         {
-            foreach (Condition condition in this.LearnConditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.LearnConditions.CheckCondition(person);
         }
 
         public bool CanBeChosenForGenerated(Person p)
@@ -186,14 +167,7 @@ namespace GameObjects.PersonDetail
             {
                 if (condition.Kind.ID == 902) return false;
             }
-            foreach (Condition c in this.GenerateConditions.Conditions.Values)
-            {
-                if (!c.CheckCondition(p))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.GenerateConditions.CheckCondition(p);
         }
 
         public bool CanBeBorn(Person person)
@@ -202,14 +176,7 @@ namespace GameObjects.PersonDetail
             {
                 if (condition.Kind.ID == 901) return false;
             }
-            foreach (Condition c in this.GenerateConditions.Conditions.Values)
-            {
-                if (!c.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.GenerateConditions.CheckCondition(person);
         }
 
         public void Purify(Troop troop)

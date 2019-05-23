@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PluginInterface;
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+//using System.Runtime.InteropServices;
 using System.Xml;
 
 namespace TabListPlugin
@@ -82,7 +82,9 @@ namespace TabListPlugin
         internal PlatformTexture tabbuttonTexture;
         internal int tabbuttonWidth;
         internal TextAlign TabTextAlign;
-
+        PlatformTexture SellectAllTexture = CacheManager.GetTempTexture(@"Content\Textures\GameComponents\TabList\Data\CheckBox.png" );
+        string selectallstring = " 全 选 ";
+        int selectallX, selectallY;
         public Font TabTextBuilder = new Font();
 
         internal Color TabTextColor;
@@ -117,10 +119,21 @@ namespace TabListPlugin
 
         public override void Draw()
         {
+            if (MultiSelecting)
+            {
+                selectallX = this.listKindToDisplay.AllColumns[0].ColumnTextList[0].Position.X;
+                selectallY = base.RealClient.Bottom + (int)(1.2f * rowHeight);
+            }
             base.Draw();
             if (this.listKindToDisplay != null)
             {
                 this.listKindToDisplay.Draw();
+                if (MultiSelecting)
+                {
+                    CacheManager.Draw(SellectAllTexture, new Rectangle(selectallX - 2 * checkboxWidth, selectallY, (int)(checkboxWidth * 1.3), (int)(checkboxWidth * 1.3)), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, 0.035f);
+
+                    CacheManager.DrawString(Session.Current.Font, selectallstring, new Vector2(selectallX, selectallY), Color.White, 0f, Vector2.Zero, 1f, SpriteEffects.None, 0f);
+                }
             }
         }
 
@@ -408,7 +421,7 @@ namespace TabListPlugin
                         gameObjectByPosition = this.GetGameObjectByPosition(position);
                         if (gameObjectByPosition != null)
                         {
-                            if (this.listKindToDisplay.IsInEditableColumn(position))
+                            //if (this.listKindToDisplay.IsInEditableColumn(position))
                             {
                                 if ((gameObjectByPosition.Selected || (this.SelectedItemMaxCount <= 0)) || (this.gameObjectList.GetSelectedList().Count < this.SelectedItemMaxCount))
                                 {
@@ -433,6 +446,9 @@ namespace TabListPlugin
                                     }
                                     else
                                     {
+                                        gameObjectByPosition.Selected = !gameObjectByPosition.Selected;
+
+                                        this.gameObjectList.SetOtherUnSelected(gameObjectByPosition);
                                     }
                                     base.OKButtonEnabled = this.gameObjectList.HasSelectedItem() || (gameObjectByPosition is Faction);
                                     this.ResetEditableTextures();
@@ -441,7 +457,7 @@ namespace TabListPlugin
                                         this.SelectedItem = gameObjectByPosition;
                                         if (!(this.MultiSelecting || !Setting.Current.GlobalVariables.SingleSelectionOneClick))
                                         {
-                                           // this.iGameFrame.OK();
+                                            this.iGameFrame.OK();
                                         }
                                         else
                                         {
@@ -454,10 +470,10 @@ namespace TabListPlugin
                                     }
                                 }
                             }
-                            else
-                            {
+                            //else
+                            //{
 
-                            }
+                            //}
                         }
                     }
                     else
@@ -466,6 +482,29 @@ namespace TabListPlugin
                 }
             }
 
+            else if (MultiSelecting && (Session.MainGame.mainGameScreen.PeekUndoneWork().Kind == UndoneWorkKind.Frame) && StaticMethods.PointInRectangle(position, new Rectangle(selectallX - 2 * checkboxWidth, selectallY, (int)(checkboxWidth * 1.3), (int)(checkboxWidth * 1.3))))
+            {
+                if (selectallstring.Equals(" 全 选 "))
+                {
+                    SellectAllTexture = CacheManager.GetTempTexture(@"Content\Textures\GameComponents\TabList\Data\CheckBoxSelected.png");
+                    selectallstring = "取消全选";
+                    foreach (GameObject g in this.gameObjectList)
+                    {
+                        g.Selected = true;
+                    }
+                    this.ResetEditableTextures();
+                }
+                else
+                {
+                    SellectAllTexture = CacheManager.GetTempTexture(@"Content\Textures\GameComponents\TabList\Data\CheckBox.png");
+                    selectallstring = " 全 选 ";
+                    foreach (GameObject g in this.gameObjectList)
+                    {
+                        g.Selected = false;
+                    }
+                    this.ResetEditableTextures();
+                }
+            }
 
         }
 
@@ -499,137 +538,150 @@ namespace TabListPlugin
                     GameObject gameObjectByPosition;
                     if (this.ShowCheckBox)
                     {
-                        gameObjectByPosition = this.GetGameObjectByPosition(position);
-                        if (gameObjectByPosition != null)
-                        {
-                            if (this.listKindToDisplay.IsInEditableColumn(position))
-                            {
-                                if ((gameObjectByPosition.Selected || (this.SelectedItemMaxCount <= 0)) || (this.gameObjectList.GetSelectedList().Count < this.SelectedItemMaxCount))
-                                {
-                                    if (this.MultiSelecting)
-                                    {
-                                        /*
-                                        this.SelectingRows = true;
-                                        this.SelectingBool = gameObjectByPosition.Selected;
-                                        this.SelectedItemList = this.gameObjectList.GetSelectedList();
-                                         */
+                        //gameObjectByPosition = this.GetGameObjectByPosition(position);
+                        //if (gameObjectByPosition != null)
+                        //{
+                        //    if (this.listKindToDisplay.IsInEditableColumn(position))
+                        //    {
+                        //        if ((gameObjectByPosition.Selected || (this.SelectedItemMaxCount <= 0)) || (this.gameObjectList.GetSelectedList().Count < this.SelectedItemMaxCount))
+                        //        {
+                        //            if (this.MultiSelecting)
+                        //            {
 
-                                    }
-                                    else
-                                    {
-                                        gameObjectByPosition.Selected = !gameObjectByPosition.Selected;
+                        //                this.SelectingRows = true;
+                        //                this.SelectingBool = gameObjectByPosition.Selected;
+                        //                this.SelectedItemList = this.gameObjectList.GetSelectedList();
 
-                                        this.gameObjectList.SetOtherUnSelected(gameObjectByPosition);
-                                    }
-                                    base.OKButtonEnabled = this.gameObjectList.HasSelectedItem() || (gameObjectByPosition is Faction);
-                                    this.ResetEditableTextures();
-                                    if (gameObjectByPosition.Selected)
-                                    {
-                                        this.SelectedItem = gameObjectByPosition;
-                                        if (!(this.MultiSelecting || !Setting.Current.GlobalVariables.SingleSelectionOneClick))
-                                        {
-                                            this.iGameFrame.OK();
-                                        }
-                                        else
-                                        {
-                                            //Session.MainGame.mainGameScreen.PlayNormalSound(this.SelectSoundFile);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        this.SelectedItem = null;
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (gameObjectByPosition is Troop)
-                                {
-                                    if ((this.iTroopDetail != null) && (base.Function != FrameFunction.Jump))
-                                    {
-                                        this.iTroopDetail.SetPosition(ShowPosition.Center);
-                                        this.iTroopDetail.SetTroop(gameObjectByPosition);
-                                        this.iTroopDetail.IsShowing = true;
-                                    }
-                                    Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Troop).Position);
-                                }
-                                else if (gameObjectByPosition is Person)
-                                {
-                                    if ((this.iPersonDetail != null) && (base.Function != FrameFunction.Jump))
-                                    {
-                                        this.iPersonDetail.SetPosition(ShowPosition.Center);
-                                        this.iPersonDetail.SetPerson(gameObjectByPosition);
-                                        this.iPersonDetail.IsShowing = true;
-                                    }
-                                    if (!(gameObjectByPosition as Person).IsCaptive)
-                                    {
-                                        Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Person).Position);
-                                    }
-                                }
-                                else if (gameObjectByPosition is Architecture)
-                                {
-                                    if ((this.iArchitectureDetail != null) && (base.Function != FrameFunction.Jump))
-                                    {
-                                        this.iArchitectureDetail.SetPosition(ShowPosition.Center);
-                                        this.iArchitectureDetail.SetArchitecture(gameObjectByPosition);
-                                        this.iArchitectureDetail.IsShowing = true;
-                                    }
-                                    Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Architecture).Position);
-                                }
-                                else if (gameObjectByPosition is Military)
-                                {
-                                    Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Military).Position);
-                                }
-                                else if (gameObjectByPosition is Faction)
-                                {
-                                    if ((this.iFactionTechniques != null) && (base.Function != FrameFunction.Jump))
-                                    {
-                                        this.iFactionTechniques.SetArchitecture(null);
-                                        this.iFactionTechniques.SetFaction(gameObjectByPosition, false);
-                                        this.iFactionTechniques.SetPosition(ShowPosition.Center);
-                                        this.iFactionTechniques.IsShowing = true;
-                                    }
-                                    Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Faction).Leader.Position);
-                                }
-                                else if (gameObjectByPosition is Captive)
-                                {
-                                    if ((this.iPersonDetail != null) && (base.Function != FrameFunction.Jump))
-                                    {
-                                        this.iPersonDetail.SetPosition(ShowPosition.Center);
-                                        this.iPersonDetail.SetPerson((gameObjectByPosition as Captive).CaptivePerson);
-                                        this.iPersonDetail.IsShowing = true;
-                                    }
-                                }
-                                else if (gameObjectByPosition is Treasure)
-                                {
-                                    if ((this.iTreasureDetail != null) && (base.Function != FrameFunction.Jump))
-                                    {
-                                        this.iTreasureDetail.SetPosition(ShowPosition.Center);
-                                        this.iTreasureDetail.SetTreasure(gameObjectByPosition);
-                                        this.iTreasureDetail.IsShowing = true;
-                                    }
-                                    if ((gameObjectByPosition as Treasure).BelongedPerson != null)
-                                    {
-                                        Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Treasure).BelongedPerson.Position);
-                                    }
-                                }
-                                else if (gameObjectByPosition is Information)
-                                {
-                                    if (base.Function != FrameFunction.Jump)
-                                    {
-                                        Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Information).Position);
-                                    }
-                                }
-                                else if (this.listKindToDisplay.SelectedTab.ListMethod != null)
-                                {
-                                    this.PushSubKindByName(this.listKindToDisplay.SelectedTab.ListKind, StaticMethods.GetListMethodValue(gameObjectByPosition, this.listKindToDisplay.SelectedTab.ListMethod) as GameObjectList);
-                                }
-                                if (gameObjectByPosition != null)
-                                {
-                                    base.TriggerItemClick();
-                                }
-                            }
-                        }
+
+                        //            }
+                        //            else
+                        //            {
+                        //                gameObjectByPosition.Selected = !gameObjectByPosition.Selected;
+
+                        //                this.gameObjectList.SetOtherUnSelected(gameObjectByPosition);
+                        //            }
+                        //            base.OKButtonEnabled = this.gameObjectList.HasSelectedItem() || (gameObjectByPosition is Faction);
+                        //            this.ResetEditableTextures();
+                        //            if (gameObjectByPosition.Selected)
+                        //            {
+                        //                this.SelectedItem = gameObjectByPosition;
+                        //                if (!(this.MultiSelecting || !Setting.Current.GlobalVariables.SingleSelectionOneClick))
+                        //                {
+                        //                    this.iGameFrame.OK();
+                        //                }
+                        //                else
+                        //                {
+                        //                    Session.MainGame.mainGameScreen.PlayNormalSound(this.SelectSoundFile);
+                        //                }
+                        //            }
+                        //            else
+                        //            {
+                        //                this.SelectedItem = null;
+                        //            }
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        if (gameObjectByPosition is Troop)
+                        //        {
+                        //            if ((this.iTroopDetail != null) && (base.Function != FrameFunction.Jump))
+                        //            {
+                        //                this.iTroopDetail.SetPosition(ShowPosition.Center);
+                        //                this.iTroopDetail.SetTroop(gameObjectByPosition);
+                        //                this.iTroopDetail.IsShowing = true;
+                        //            }
+                        //            Point pos = (gameObjectByPosition as Troop).Position;
+                        //            if (pos != Point.Zero)
+                        //            {
+                        //                Session.MainGame.mainGameScreen.JumpTo(pos);
+                        //            }
+                        //        }
+                        //        else if (gameObjectByPosition is Person)
+                        //        {
+                        //            if ((this.iPersonDetail != null) && (base.Function != FrameFunction.Jump))
+                        //            {
+                        //                this.iPersonDetail.SetPosition(ShowPosition.Center);
+                        //                this.iPersonDetail.SetPerson(gameObjectByPosition);
+                        //                this.iPersonDetail.IsShowing = true;
+                        //            }
+                        //            if (!(gameObjectByPosition as Person).IsCaptive)
+                        //            {
+                        //                Point pos = (gameObjectByPosition as Person).Position;
+                        //                if (pos != Point.Zero)
+                        //                {
+                        //                    Session.MainGame.mainGameScreen.JumpTo(pos);
+                        //                }
+                        //            }
+                        //        }
+                        //        else if (gameObjectByPosition is Architecture)
+                        //        {
+                        //            if ((this.iArchitectureDetail != null) && (base.Function != FrameFunction.Jump))
+                        //            {
+                        //                this.iArchitectureDetail.SetPosition(ShowPosition.Center);
+                        //                this.iArchitectureDetail.SetArchitecture(gameObjectByPosition);
+                        //                this.iArchitectureDetail.IsShowing = true;
+                        //            }
+                        //            Point pos = (gameObjectByPosition as Architecture).Position;
+                        //            if (pos != Point.Zero)
+                        //            {
+                        //                Session.MainGame.mainGameScreen.JumpTo(pos);
+                        //            }
+                        //        }
+                        //        else if (gameObjectByPosition is Military)
+                        //        {
+                        //            Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Military).Position);
+                        //        }
+                        //        else if (gameObjectByPosition is Faction)
+                        //        {
+                        //            if ((this.iFactionTechniques != null) && (base.Function != FrameFunction.Jump))
+                        //            {
+                        //                this.iFactionTechniques.SetArchitecture(null);
+                        //                this.iFactionTechniques.SetFaction(gameObjectByPosition, false);
+                        //                this.iFactionTechniques.SetPosition(ShowPosition.Center);
+                        //                this.iFactionTechniques.IsShowing = true;
+                        //            }
+                        //            Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Faction).Leader.Position);
+                        //        }
+                        //        else if (gameObjectByPosition is Captive)
+                        //        {
+                        //            if ((this.iPersonDetail != null) && (base.Function != FrameFunction.Jump))
+                        //            {
+                        //                this.iPersonDetail.SetPosition(ShowPosition.Center);
+                        //                this.iPersonDetail.SetPerson((gameObjectByPosition as Captive).CaptivePerson);
+                        //                this.iPersonDetail.IsShowing = true;
+                        //            }
+                        //        }
+                        //        else if (gameObjectByPosition is Treasure)
+                        //        {
+                        //            if ((this.iTreasureDetail != null) && (base.Function != FrameFunction.Jump))
+                        //            {
+                        //                this.iTreasureDetail.SetPosition(ShowPosition.Center);
+                        //                this.iTreasureDetail.SetTreasure(gameObjectByPosition);
+                        //                this.iTreasureDetail.IsShowing = true;
+                        //            }
+                        //            if ((gameObjectByPosition as Treasure).BelongedPerson != null)
+                        //            {
+                        //                Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Treasure).BelongedPerson.Position);
+                        //            }
+                        //        }
+                        //        else if (gameObjectByPosition is Information)
+                        //        {
+                        //            if (base.Function != FrameFunction.Jump)
+                        //            {
+                        //                Session.MainGame.mainGameScreen.JumpTo((gameObjectByPosition as Information).Position);
+                        //            }
+                        //        }
+                        //        /*else*/
+                        //        if (this.listKindToDisplay.SelectedTab.ListMethod != null)
+                        //        {
+                        //            this.PushSubKindByName(this.listKindToDisplay.SelectedTab.ListKind, StaticMethods.GetListMethodValue(gameObjectByPosition, this.listKindToDisplay.SelectedTab.ListMethod) as GameObjectList);
+                        //        }
+                        //        if (gameObjectByPosition != null)
+                        //        {
+                        //            base.TriggerItemClick();
+                        //        }
+                        //    }
+                        //}
                     }
                     else
                     {
@@ -728,7 +780,6 @@ namespace TabListPlugin
                     }
                 }
             }
-
 
             /////////////////////////////////////////////////
 
@@ -992,7 +1043,7 @@ namespace TabListPlugin
             }
         }
 
-        [StructLayout(LayoutKind.Sequential)]
+        [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
         internal struct SubKind
         {
             internal ListKind Kind;

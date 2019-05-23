@@ -58,7 +58,8 @@ namespace GameObjects.PersonDetail
                 generationChance = value;
             }
         }
-        public int RelatedAbility { get; set; }
+        [DataMember]
+        public int RelatedAbility { get; set; }//游戏的commondata中的skill的此项漏存了，所以导致默认的都为0
 
         public int GetRelatedAbility(Person p)
         {
@@ -90,14 +91,7 @@ namespace GameObjects.PersonDetail
 
         public virtual bool CanLearn(Person person)
         {
-            foreach (Condition condition in this.Conditions.Conditions.Values)
-            {
-                if (!condition.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.Conditions.CheckCondition(person);
         }
 
         public GameObjectList GetConditionList()
@@ -250,14 +244,7 @@ namespace GameObjects.PersonDetail
             {
                 if (condition.Kind.ID == 902) return false;
             }
-            foreach (Condition c in this.GenerateConditions.Conditions.Values)
-            {
-                if (!c.CheckCondition(p))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.GenerateConditions.CheckCondition(p);
         }
 
         public bool CanBeBorn(Person person)
@@ -266,14 +253,7 @@ namespace GameObjects.PersonDetail
             {
                 if (condition.Kind.ID == 901) return false;
             }
-            foreach (Condition c in this.GenerateConditions.Conditions.Values)
-            {
-                if (!c.CheckCondition(person))
-                {
-                    return false;
-                }
-            }
-            return true;
+            return this.GenerateConditions.CheckCondition(person);
         }
     }
 }

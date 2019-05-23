@@ -10,9 +10,9 @@ namespace WorldOfTheThreeKingdomsEditor
 {
     class FacilityTab : BaseTab<Facility>
     {
-        protected override GameObjectList GetDataList(GameScenario scen)
+        protected override IItemList GetDataList(GameScenario scen)
         {
-            return scen.Facilities;
+            return new GameObjectItemList(scen.Facilities);
         }
 
         protected override Dictionary<string, string> GetDefaultValues()
@@ -32,9 +32,18 @@ namespace WorldOfTheThreeKingdomsEditor
             };
         }
 
-        public FacilityTab(GameScenario scen, DataGrid dg)
+        protected override Dictionary<String, String> GetHelpText()
         {
-            init(scen, dg);
+            return new Dictionary<string, string>()
+            {
+                { "KindID","種類ID" },
+                {"Endurance","耐久" }
+            };
+        }
+
+        public FacilityTab(GameScenario scen, DataGrid dg, TextBlock helpTextBlock)
+        {
+            init(scen, dg, helpTextBlock);
         }
     }
 }

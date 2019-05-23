@@ -519,7 +519,7 @@ namespace TransportDialogPlugin
                         case TransportKind.Fund:
                         case TransportKind.Food:
                             this.Days = Session.Current.Scenario.GetTransferFundDays(this.SourceArchitecture, this.DestinationArchitecture);
-                            this.DestinationCommentText.Text = "运抵时间：" + this.Days.ToString() + "天";
+                            this.DestinationCommentText.Text = "运抵时间：" + (this.Days * Session.Parameters.DayInTurn).ToString() + "天";
                             break;
 
                     }

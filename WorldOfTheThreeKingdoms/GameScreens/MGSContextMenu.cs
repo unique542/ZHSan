@@ -112,7 +112,14 @@ namespace WorldOfTheThreeKingdoms.GameScreens
             this.Plugins.youcelanPlugin.IsShowing = true;
             this.Plugins.ContextMenuPlugin.ShezhiBianduiLiebiaoXinxi(this.Plugins.BianduiLiebiao.IsShowing, this.Plugins.BianduiLiebiao.Weizhi);
 
+            //switch (result)
+            //{
 
+            //    case UndoneWorkKind.ContextMenu:
+            //        this.HandleContextMenuResult(this.Plugins.ContextMenuPlugin.Result);
+            //        this.gengxinyoucelan();
+            //        break;
+            //}
 
             switch (result)
             {
@@ -366,6 +373,10 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                     this.screenManager.ArchitectureExpand();
                     break;
 
+                case ContextMenuResult.Military_CampaignAuto://自动出征
+
+                    this.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.Military, FrameFunction.GetAutoCampaignMilitaries, false, true, true, true, this.CurrentArchitecture.GetCampaignMilitaryList(), null, "选择编队", "");
+                    break;
 
                 case ContextMenuResult.Military_Campaign:
                     if (function3 == null)
@@ -374,6 +385,8 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                         {
                             this.CurrentArchitecture = this.Plugins.CreateTroopPlugin.CreatingArchitecture as Architecture;
                             this.CurrentMilitary = this.Plugins.CreateTroopPlugin.CreatingMilitary as Military;
+                            this.CurrentMilitaries = new GameObjectList();
+                            this.CurrentMilitaries.Add(this.CurrentMilitary);
                             this.CurrentGameObjects = this.Plugins.CreateTroopPlugin.CreatingPersons as GameObjectList;
                             this.CurrentPerson = this.Plugins.CreateTroopPlugin.CreatingLeader as Person;
                             this.CurrentNumber = this.Plugins.CreateTroopPlugin.CreatingFood;
@@ -401,7 +414,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                         };
                     }
                     this.Plugins.CreateTroopPlugin.SetCreateFunction(function4);
-                    this.Plugins.CreateTroopPlugin.SetShellMilitaryKind(Session.Current.Scenario.GameCommonData.AllMilitaryKinds.GetMilitaryKind(0x1c));
+                    this.Plugins.CreateTroopPlugin.SetShellMilitaryKind(Session.Current.Scenario.GameCommonData.AllMilitaryKinds.GetMilitaryKind(28));
                     this.Plugins.CreateTroopPlugin.SetArchitecture(this.CurrentArchitecture);
                     this.Plugins.CreateTroopPlugin.SetPosition(ShowPosition.Center);
                     this.Plugins.CreateTroopPlugin.IsShowing = true;
@@ -614,15 +627,6 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                     this.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.Work, FrameFunction.GetJailBreakPerson, false, true, true, true, this.CurrentArchitecture.Persons, null, "劫狱", "劫狱");
                     break;
 
-                case ContextMenuResult.Tactics_ClearField:
-                    this.Plugins.ConfirmationDialogPlugin.SetSimpleTextDialog(this.Plugins.SimpleTextDialogPlugin);
-                    this.Plugins.ConfirmationDialogPlugin.ClearFunctions();
-                    this.Plugins.ConfirmationDialogPlugin.AddYesFunction(new GameDelegates.VoidFunction(this.CurrentArchitecture.ClearField));
-                    this.Plugins.ConfirmationDialogPlugin.SetPosition(ShowPosition.Center);
-                    this.Plugins.SimpleTextDialogPlugin.SetGameObjectBranch(this.CurrentArchitecture, "ClearField");
-                    this.Plugins.ConfirmationDialogPlugin.IsShowing = true;
-                    break;
-
                 case ContextMenuResult.Monarch_officePosition_jingongzijin:
                     this.Plugins.TransportDialogPlugin.SetSourceArchiecture(this.CurrentArchitecture);
                     this.Plugins.TransportDialogPlugin.SetKind(TransportKind.EmperorFund);
@@ -644,7 +648,7 @@ namespace WorldOfTheThreeKingdoms.GameScreens
                     break;
 
                 case ContextMenuResult.Monarch_TrainChildren:
-                    this.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.Person, FrameFunction.SelectTrainableChildren, false, true, true, false, this.CurrentArchitecture.BelongedFaction.Leader.TrainableChildren, null, "子女培育", "");
+                    this.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.Person, FrameFunction.SelectTrainableChildren, false, true, true, true, this.CurrentArchitecture.BelongedFaction.Leader.TrainableChildren, null, "子女培育", "");
                     break;
 
                 case ContextMenuResult.Monarch_ChangeCapital:
@@ -726,6 +730,10 @@ namespace WorldOfTheThreeKingdoms.GameScreens
 
                 case ContextMenuResult.Monarch_hougongTop_moveFeizi:
                     this.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.Person, FrameFunction.MoveFeizi, false, true, true, false, this.CurrentArchitecture.movableFeizis, null, "移动妃子", "");
+                    break;
+
+                case ContextMenuResult.Monarch_hougongTop_releaseFeizi:
+                    this.ShowTabListInFrame(UndoneWorkKind.Frame, FrameKind.Person, FrameFunction.ReleaseFeizi, false, true, true, true, this.CurrentArchitecture.ReleasableFeizis, null, "释放妃子", "");
                     break;
 
                 case ContextMenuResult.Monarch_Refuse:

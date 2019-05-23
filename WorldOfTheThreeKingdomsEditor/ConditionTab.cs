@@ -13,9 +13,9 @@ namespace WorldOfTheThreeKingdomsEditor
 {
     class ConditionTab : BaseTab<Condition>
     {
-        protected override GameObjectList GetDataList(GameScenario scen)
+        protected override IItemList GetDataList(GameScenario scen)
         {
-            return scen.GameCommonData.AllConditions.GetConditionList();
+            return new GameObjectDictionaryItemList(scen.GameCommonData.AllConditions.Conditions);
         }
 
         protected override Dictionary<string, string> GetDefaultValues()
@@ -38,9 +38,20 @@ namespace WorldOfTheThreeKingdomsEditor
             };
         }
 
-        public ConditionTab(GameScenario scen, DataGrid dg)
+        protected override Dictionary<String, String> GetHelpText()
         {
-            init(scen, dg);
+            return new Dictionary<string, string>()
+            {
+                { "Kind", "对应种类" },
+                { "Name",  "名称" },
+                {"Parameter", "参数" },
+                {"Parameter2","参数2" }
+            };
+        }
+
+        public ConditionTab(GameScenario scen, DataGrid dg, TextBlock helpTextBlock)
+        {
+            init(scen, dg, helpTextBlock);
         }
     }
 }

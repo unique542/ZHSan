@@ -10,9 +10,9 @@ namespace WorldOfTheThreeKingdomsEditor
 {
     class CaptiveTab : BaseTab<Captive>
     {
-        protected override GameObjectList GetDataList(GameScenario scen)
+        protected override IItemList GetDataList(GameScenario scen)
         {
-            return scen.Captives;
+            return new GameObjectItemList(scen.captiveData);
         }
 
         protected override Dictionary<string, string> GetDefaultValues()
@@ -30,14 +30,29 @@ namespace WorldOfTheThreeKingdomsEditor
             return new String[]
             {
                 "ID",
-                "CaptivePerson",
-                "CaptiveFaction"
+                "CaptivePersonID",
+                "CaptiveFactionID",
+                "RansomArchitectureID",
+                "RansomFund",
+                "RansomArriveDays",
             };
         }
 
-        public CaptiveTab(GameScenario scen, DataGrid dg)
+        protected override Dictionary<String, String> GetHelpText()
         {
-            init(scen, dg);
+            return new Dictionary<string, string>()
+            {
+                { "CaptivePersonID", "俘虏人物" },
+                { "CaptiveFactionID",  "俘虏势力" },
+                { "RansomArchitectureID", "赎金目标建筑" },
+                { "RansomFund",  "赎金金额" },
+                { "RansomArriveDays", "赎金到达时间" },
+            };
+        }
+
+        public CaptiveTab(GameScenario scen, DataGrid dg, TextBlock helpTextBlock)
+        {
+            init(scen, dg, helpTextBlock);
         }
     }
 }
